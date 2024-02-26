@@ -5,6 +5,7 @@ These programs are generally called from the command line (or crontab)
 Also called occasionally from invest.cgi for one individual stock.
 
 -------------------------------------------------------------------------------
+```
 USAGE: getdata -all        [options]
 USAGE: getdata -null       [options]
 USAGE: getdata -one TICKER [options]
@@ -26,7 +27,9 @@ Options:
  -d     = debug
  -q     = quiet
 
+```
 -------------------------------------------------------------------------------
+```
 USAGE: getdiv -active        [options]
 USAGE: getdiv -cuts          [options]
 USAGE: getdiv -update        [options]
@@ -41,8 +44,9 @@ Options:
  -d1  = debug
  -d2  = debug, more verbose
  -all = get all dividends for each stock
-
+```
 -------------------------------------------------------------------------------
+```
 USAGE: getfundSEC index          [options]
 USAGE: getfundSEC -file filename [options]
 USAGE: getfundSEC -ticker ticker [options]
@@ -63,8 +67,9 @@ Options:
  -v           = verbose
  -nodb        = no db update, statements to stdout
  -d [#]       = debug, no db update
-
+```
 -------------------------------------------------------------------------------
+```
 USAGE: getstats -all         [options]
 USAGE: getstats -indexed     [options]
 USAGE: getstats -index INDEX [options]
@@ -79,10 +84,10 @@ Options:
  -d     = debug
  -q     = quiet
  -neg   = skip negative earnings in -report.
-
+```
 
 ## Update database after loading data
-
+```
 USAGE: Fundamentals {-g|-p|-r|-c} TICKER [options]
  -g get from iex, saved as raw
  -p parse from raw to txt
@@ -90,8 +95,9 @@ USAGE: Fundamentals {-g|-p|-r|-c} TICKER [options]
  -c write csv format
  -f filter
  -d debug
-
+```
 -------------------------------------------------------------------------------
+```
 USAGE: UpdateAverage -index index   mode [options]
 USAGE: UpdateAverage -ticker TICKER mode [options]
 index:
@@ -109,8 +115,9 @@ options:
   -col xxx   = only one column {price|volume|rsi|stddev|ctb}
   -p         = pacifier
   -d1 or -d2 = debug level, no db update
-
+```
 -------------------------------------------------------------------------------
+```
 USAGE: UpdateFundamental -all           [options]
 USAGE: UpdateFundamental -file filename [options]
 USAGE: UpdateFundamental -ticker ticker [options]
@@ -118,7 +125,7 @@ Options:
  -nodb   = no db update, statements to stdout
  -v      = verbose
  -d [#]  = debug, no db update
-
+```
 
 ## Display data on the website.
 
