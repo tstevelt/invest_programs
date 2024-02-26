@@ -1,0 +1,70 @@
+--     Programs called by invest.cgi
+-- 
+--     Copyright (C)  2019 - 2024 Tom Stevelt
+-- 
+--     This program is free software: you can redistribute it and/or modify
+--     it under the terms of the GNU Affero General Public License as
+--     published by the Free Software Foundation, either version 3 of the
+--     License, or (at your option) any later version.
+-- 
+--     This program is distributed in the hope that it will be useful,
+--     but WITHOUT ANY WARRANTY; without even the implied warranty of
+--     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+--     GNU Affero General Public License for more details.
+-- 
+--     You should have received a copy of the GNU Affero General Public License
+--     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-- +-----------+------------------+------+-----+---------+-------+
+-- | Field     | Type             | Null | Key | Default | Extra |
+-- +-----------+------------------+------+-----+---------+-------+
+-- | Sticker   | varchar(20)      | NO   | PRI | NULL    |       |
+-- | Sname     | varchar(80)      | NO   |     | NULL    |       |
+-- | Slast     | date             | YES  |     | NULL    |       |
+-- | Sclose    | double           | YES  |     | 0       |       |
+-- | Stype     | char(1)          | YES  |     | S       |       |
+-- | Ssp500    | char(1)          | YES  |     | N       |       |
+-- | Srussell  | char(1)          | YES  |     | N       |       |
+-- | Sdj       | char(1)          | YES  |     | N       |       |
+-- | Snasdaq   | char(1)          | YES  |     | N       |       |
+-- | Scheck    | char(1)          | NO   |     | N       |       |
+-- | Shigh52   | double           | YES  |     | 0       |       |
+-- | Sdate52   | date             | YES  |     | NULL    |       |
+-- | Sindustry | int(11) unsigned | YES  |     | NULL    |       |
+-- | Sexchange | varchar(6)       | YES  |     | NULL    |       |
+-- | Ssector   | int(11) unsigned | YES  |     | NULL    |       |
+-- | Snews     | int(11)          | YES  |     | 0       |       |
+-- | Sdomfor   | char(1)          | NO   |     | D       |       |
+-- +-----------+------------------+------+-----+---------+-------+
+-- +--------------+------------------+------+-----+---------+-------+
+-- | Field        | Type             | Null | Key | Default | Extra |
+-- +--------------+------------------+------+-----+---------+-------+
+-- | Fticker      | varchar(20)      | NO   | PRI | NULL    |       |
+-- | Febitda      | bigint(20)       | YES  |     | NULL    |       |
+-- | Fentval      | bigint(20)       | YES  |     | NULL    |       |
+-- | Fvalue       | double           | YES  |     | NULL    |       |
+-- | Fepsttm      | double           | YES  |     | NULL    |       |
+-- | Fpettm       | double           | YES  |     | NULL    |       |
+-- | Fepsfwd      | double           | YES  |     | NULL    |       |
+-- | Fpefwd       | double           | YES  |     | NULL    |       |
+-- | Fpb          | double           | YES  |     | NULL    |       |
+-- | Fmargin      | double           | YES  |     | NULL    |       |
+-- | Fshares      | bigint(20)       | YES  |     | 0       |       |
+-- | Fyield       | double           | YES  |     | 0       |       |
+-- | Fbeta        | double           | YES  |     | NULL    |       |
+-- | Fgrow5       | double           | YES  |     | 0       |       |
+-- | Fgrow1       | double           | YES  |     | NULL    |       |
+-- | Ftarget      | double           | YES  |     | NULL    |       |
+-- | Frecc        | double           | YES  |     | NULL    |       |
+-- | Fquick       | double           | YES  |     | NULL    |       |
+-- | Fdebteq      | double           | YES  |     | NULL    |       |
+-- | FreturnA     | double           | YES  |     | NULL    |       |
+-- | Ffreecash    | bigint(20)       | YES  |     | NULL    |       |
+-- | Frevenuegrow | double           | YES  |     | NULL    |       |
+-- | Fearngrow    | double           | YES  |     | NULL    |       |
+-- | Fupdated     | int(11) unsigned | YES  |     | NULL    |       |
+-- +--------------+------------------+------+-----+---------+-------+
+
+-- no worky (sets all to NULL) update fundamental as A set Fpettm = (select Sclose/B.Fepsttm from stock, fundamental as B where Sticker = B.Fticker and B.Fepsttm != 0 and A.Fticker = B.Fticker and B.Fpettm != Sclose / B.Fepsttm);
+
+
+
