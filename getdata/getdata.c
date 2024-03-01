@@ -14,7 +14,11 @@
 	QuoteStream		https://www.quotestream.com/register/	Personal	29/Month
 
 	Xignite			https://www.xignite.com/product/historical-stock-prices#/productoverview	
-																		52000/Year
+					52000/Year
+
+	Interesting new site:
+					https://site.financialmodelingprep.com/developer/docs
+
 
 	Who		Date		Modification
 	---------------------------------------------------------------------
