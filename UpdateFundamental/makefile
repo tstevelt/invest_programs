@@ -4,7 +4,7 @@ MYSQL_DIR = /usr/lib64
 MYSQL_FLAGS = -lz -lcrypt -lm -lssl -lcrypto
 MLIB = $(MYSQL_DIR)/libmysqlclient.so $(MYSQL_FLAGS)
 
-CFLAGS = -g -fsanitize=address -Wall -Wformat-truncation=0 -I../../include -I/usr/local/include
+# CFLAGS = -g -fsanitize=address -Wall -Wformat-truncation=0 -I../../include -I/usr/local/include
 
 XLIB = /usr/local/lib64/invlib.a /usr/local/lib64/dbylib.a /usr/local/lib64/shslib.a
 DEF = /usr/local/include
@@ -19,7 +19,8 @@ FILES = \
 
 $(PRG): $(LIB) $(XLIB)
 	echo "using gcc to load $(PRG)"
-	gcc  -g -fsanitize=address -o $(PRG) $(LIB) $(XLIB) $(MLIB)
+	# gcc  -g -fsanitize=address -o $(PRG) $(LIB) $(XLIB) $(MLIB)
+	gcc  -g -o $(PRG) $(LIB) $(XLIB) $(MLIB)
 
 $(LIB): $(FILES)
 

@@ -75,6 +75,7 @@ int EachStock ( XSTOCK *ptr )
 	{
 		firstpass = 0;
 
+		HistoryCount = 0;
 		sprintf ( WhereClause, "Hticker = 'SPY'"  );
 		LoadHistoryCB ( &MySql, WhereClause, "Hdate desc", &xhistory, (int(*)()) EachHistory, 0 );
 
