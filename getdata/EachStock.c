@@ -3,6 +3,13 @@
 	Author  : Tom Stevelt
 	Date    : 2019 - 2024
 	Synopsis: For each stock, download data from IEX (or Tiingo) and save.
+
+==> /var/local/tmp/getdata_32081.csv <==
+close,high,low,open,priceDate,symbol,volume,id,key,subkey,date,updated,changeOverTime,marketChangeOverTime,uOpen,uClose,uHigh,uLow,uVolume,fOpen,fClose,fHigh,fLow,fVolume,label,change,changePercent
+
+==> /var/local/tmp/getdata_31936.csv <==
+close,high,low,open,priceDate,symbol,volume,id,key,subkey,date,updated,changeOverTime,marketChangeOverTime,uClose,uHigh,uLow,fClose,fHigh,fLow,label,change,changePercent
+
 ----------------------------------------------------------------------------*/
 //     Programs called by invest.cgi
 // 
@@ -31,7 +38,7 @@ static int BreakOut ()
 int EachStock ()
 {
 	int		rv, lineno, Expected;
-	int		VolumeIndex = 0;
+	int		DateNdx, OpenNdx, HighNdx, LowNdx, CloseNdx, VolumeNdx;
 	FILE	*tfp;
 	time_t	stime, etime;
 	int		HistoryThisStock;
@@ -318,15 +325,16 @@ continue;
 		}
 		else if ( Format == FORMAT_CSV )
 		{
+/*---------------------------------------------------------------------------
 			if ( lineno == 1 )
 			{
-				if ( nsStrstr ( buffer, "fVolume" ) == 0 )
+				if ( nsStrstr ( buffer, "fVolume" ) == NULL )
 				{
-					VolumeIndex = 6;
+					VolumeNdx = 6;
 				}
 				else
 				{
-					VolumeIndex = 23;
+					VolumeNdx = 23;
 				}
 				continue;
 			}
@@ -347,7 +355,84 @@ continue;
 				}
 				continue;
 			}
+---------------------------------------------------------------------------*/
 
+			tokcnt = GetTokensA ( buffer, ",", tokens, MAXTOKS );
+
+			if ( lineno == 1 )
+			{
+
+// ==> /var/local/tmp/getdata_32081.csv <==
+// 0     1    2    3   4         5      6      7  8   9      10   11     12              13                   14    15     16    17   18      19    20     21    22   23     24     25     26
+// close,high,low,open,priceDate,symbol,volume,id,key,subkey,date,updated,changeOverTime,marketChangeOverTime,uOpen,uClose,uHigh,uLow,uVolume,fOpen,fClose,fHigh,fLow,fVolume,label,change,changePercent
+// close,high,low,open,priceDate,symbol,volume,id,key,subkey,date,updated,changeOverTime,marketChangeOverTime,uOpen,uClose,uHigh,uLow,uVolume,fOpen,fClose,fHigh,fLow,fVolume,label,change,changePercent
+
+// ==> /var/local/tmp/getdata_31936.csv <==
+// 0     1    2    3   4         5      6      7  8   9      10   11     12              13                   14    15     16   17     18    19   20    21     22   
+// close,high,low,open,priceDate,symbol,volume,id,key,subkey,date,updated,changeOverTime,marketChangeOverTime,uClose,uHigh,uLow,fClose,fHigh,fLow,label,change,changePercent
+
+int GetIndex ( char *Field )
+{
+	for ( int ndx = 0; ndx < tokcnt; ndx++ )
+	{
+		if ( strcmp ( Field, tokens[ndx] ) == 0 )
+		{
+			return ( ndx );
+		}
+	}
+	return ( -1 );
+}
+				if (( DateNdx = GetIndex ( "priceDate" )) == -1 )
+				{
+					if (( DateNdx = GetIndex ( "date" )) == -1 )
+					{
+						printf ( "missing date\n" );
+						return ( 0 );
+					}
+				}
+				if (( OpenNdx = GetIndex ( "fOpen" )) == -1 )
+				{
+					if (( OpenNdx = GetIndex ( "open" )) == -1 )
+					{
+						printf ( "missing open\n" );
+						return ( 0 );
+					}
+				}
+				if (( HighNdx = GetIndex ( "fHigh" )) == -1 )
+				{
+					if (( HighNdx = GetIndex ( "high" )) == -1 )
+					{
+						printf ( "missing high\n" );
+						return ( 0 );
+					}
+				}
+				if (( LowNdx = GetIndex ( "fLow" )) == -1 )
+				{
+					if (( LowNdx = GetIndex ( "low" )) == -1 )
+					{
+						printf ( "missing low\n" );
+						return ( 0 );
+					}
+				}
+				if (( CloseNdx = GetIndex ( "fClose" )) == -1 )
+				{
+					if (( CloseNdx = GetIndex ( "close" )) == -1 )
+					{
+						printf ( "missing close\n" );
+						return ( 0 );
+					}
+				}
+				if (( VolumeNdx = GetIndex ( "fVolume" )) == -1 )
+				{
+					if (( VolumeNdx = GetIndex ( "volume" )) == -1 )
+					{
+						printf ( "missing volume\n" );
+						return ( 0 );
+					}
+				}
+			}
+
+/*---------------------------------------------------------------------------
 			switch ( Period )
 			{
 				case PERIOD_ONE_MONTH:
@@ -355,14 +440,12 @@ continue;
 				case PERIOD_THREE_YEAR:
 				case PERIOD_FIVE_YEAR:
 				case PERIOD_TEN_YEAR:
-// 0     1    2    3   4         5      6      7  8   9      10   11     12              13                   14    15     16    17   18      19    20     21    22   23     24     25     26
-// close,high,low,open,priceDate,symbol,volume,id,key,subkey,date,updated,changeOverTime,marketChangeOverTime,uOpen,uClose,uHigh,uLow,uVolume,fOpen,fClose,fHigh,fLow,fVolume,label,change,changePercent
 					sprintf ( xhistory.xhdate, "%10.10s", tokens[4] );
 					xhistory.xhopen = nsAtof(tokens[19]);
 					xhistory.xhclose = nsAtof(tokens[20]);
 					xhistory.xhhigh = nsAtof(tokens[21]);
 					xhistory.xhlow  = nsAtof(tokens[22]);
-					xhistory.xhvolume = nsAtol(tokens[VolumeIndex]);
+					xhistory.xhvolume = nsAtol(tokens[VolumeNdx]);
 					break;
 				default:
 					sprintf ( xhistory.xhdate, "%10.10s", tokens[0] );
@@ -373,7 +456,13 @@ continue;
 					xhistory.xhvolume = nsAtol(tokens[5]);
 					break;
 			}
-
+---------------------------------------------------------------------------*/
+			sprintf ( xhistory.xhdate, "%10.10s", tokens[DateNdx] );
+			xhistory.xhopen = nsAtof(tokens[OpenNdx]);
+			xhistory.xhclose = nsAtof(tokens[CloseNdx]);
+			xhistory.xhhigh = nsAtof(tokens[HighNdx]);
+			xhistory.xhlow  = nsAtof(tokens[LowNdx]);
+			xhistory.xhvolume = nsAtol(tokens[VolumeNdx]);
 		}
 		else
 		{
