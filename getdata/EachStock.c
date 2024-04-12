@@ -233,6 +233,8 @@ int EachStock ()
 			break;
 		}
 
+		TrimRight ( buffer );
+
 		if ( Period == PERIOD_OHLC )
 		{
 /*---------------------------------------------------------------------------
@@ -371,6 +373,12 @@ continue;
 // 0     1    2    3   4         5      6      7  8   9      10   11     12              13                   14    15     16   17     18    19   20    21     22   
 // close,high,low,open,priceDate,symbol,volume,id,key,subkey,date,updated,changeOverTime,marketChangeOverTime,uClose,uHigh,uLow,fClose,fHigh,fLow,label,change,changePercent
 
+// tiingo
+// date,open,high,low,close,volume
+// 2024-04-05,23.09,23.09,23.09,23.09,0
+// 2024-04-08,23.11,23.11,23.11,23.11,0
+// 2024-04-09,23.17,23.17,23.17,23.17,0
+// 
 int GetIndex ( char *Field )
 {
 	for ( int ndx = 0; ndx < tokcnt; ndx++ )
