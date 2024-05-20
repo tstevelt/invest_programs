@@ -144,16 +144,16 @@ Options:
 ```
 ---------------------------------------------------------------------------
 cleandata Check database for weird data.
+Report option disabled, too expensive.
 ```
 USAGE: cleandata -stock  date [-d]
    Deletes stocks and history where Slast < date (if not in portfolio)
 USAGE: cleandata -history {equal|less} date [-d]
    Deletes history and average records
 USAGE: cleandata -report {all | TICKER} date [-d]
-   date = history should be loaded up to and including this date. *
+   date = history should be loaded up to and including this date.
 format date as yyyy-mm-dd
 ```
-* Report option disabled, too expensive.
 
 ## Display data on the website.
 
