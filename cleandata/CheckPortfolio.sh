@@ -1,4 +1,5 @@
-#     Programs called by invest.cgi
+#!/bin/sh
+#     Invest extras
 # 
 #     Copyright (C)  2019 - 2024 Tom Stevelt
 # 
@@ -16,8 +17,21 @@
 #     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-getdata -splits > CheckSplits.txt
+if [ "$2" = '' ]
+then
+	echo "USAGE: CheckPortfolio.sh memberID date"
+	exit 1
+fi
 
-cat CheckSplits.txt | mail -s 'Check Splits' tms@stevelt.com
+MEMBER=$1
+DATE=$2
 
+
+echo "select Pticker from portfolio, stock where Pticker = Sticker and Stype != 'C' and Stype != 'B' and Pmember = $MEMBER ;" | mysql -D invest | awk '{print $2}' | grep -v Pticker > Pticker.txt
+
+for i in `cat Pticker.txt`
+do
+	echo "==== $i ===="
+	cleandata -report $i $DATE
+done
 

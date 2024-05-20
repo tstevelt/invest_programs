@@ -3,13 +3,6 @@
 	Author  : Tom Stevelt
 	Date    : 2019 - 2024
 	Synopsis: For each stock, download data from IEX (or Tiingo) and save.
-
-==> /var/local/tmp/getdata_32081.csv <==
-close,high,low,open,priceDate,symbol,volume,id,key,subkey,date,updated,changeOverTime,marketChangeOverTime,uOpen,uClose,uHigh,uLow,uVolume,fOpen,fClose,fHigh,fLow,fVolume,label,change,changePercent
-
-==> /var/local/tmp/getdata_31936.csv <==
-close,high,low,open,priceDate,symbol,volume,id,key,subkey,date,updated,changeOverTime,marketChangeOverTime,uClose,uHigh,uLow,fClose,fHigh,fLow,label,change,changePercent
-
 ----------------------------------------------------------------------------*/
 //     Programs called by invest.cgi
 // 
@@ -183,7 +176,7 @@ int EachStock ()
 	if ( Debug )
 	{
 		printf ( "%s\n", cmdline );
-		if ( Period == PERIOD_PAST )
+		if ( 1 == 2 && Period == PERIOD_PAST )
 		{
 			exit ( 1 );
 		}
@@ -288,22 +281,6 @@ continue;
 		}
 		else if ( Period == PERIOD_PAST )
 		{
-			/*----------------------------------------------------------------------------------------
-				ignores filter=
-				0    1      2     3     4    5       6     7    8    9   10
-				date,uClose,uOpen,uHigh,uLow,uVolume,close,open,high,low,volume,change,changePercent,label,changeOverTime,symbol
-				2020-02-18,319,315.36,319.75,314.61,38190545,319,315.36,319.75,314.61,38190545,0,0,Feb 18,0,AAPL
-			xxx if ( nsStrncmp ( buffer, "date,", 5 ) == 0 )
-
-				format changed, tms december 2020
-				0    1     2   3    4      5      6  7   8      9 ...
-				close,high,low,open,symbol,volume,id,key,subkey,date,updated,changeOverTime,marketChangeOverTime,uOpen,uClose,uHigh,uLow,uVolume,fOpen,fClose,fHigh,fLow,fVolume,label,change,changePercent
-
-				New format 08/30/2022
-				0     1    2   3    4         5      6
-				close,high,low,open,priceDate,symbol,volume
-			----------------------------------------------------------------------------------------*/
-
 			if ( nsStrncmp ( buffer, "close,", 5 ) == 0 )
 			{
 				continue;
@@ -327,144 +304,57 @@ continue;
 		}
 		else if ( Format == FORMAT_CSV )
 		{
-/*---------------------------------------------------------------------------
-			if ( lineno == 1 )
-			{
-				if ( nsStrstr ( buffer, "fVolume" ) == NULL )
-				{
-					VolumeNdx = 6;
-				}
-				else
-				{
-					VolumeNdx = 23;
-				}
-				continue;
-			}
-			if ( nsStrncmp ( buffer, "date,", 5 ) == 0 )
-			{
-				continue;
-			}
-			if ( nsStrncmp ( buffer, "close", 5 ) == 0 )
-			{
-				continue;
-			}
-
-			if (( tokcnt = GetTokensA ( buffer, ",", tokens, MAXTOKS )) < Expected )
-			{
-				if ( Debug )
-				{
-					printf ( "tokcnt %d on line %d\n", tokcnt, lineno );
-				}
-				continue;
-			}
----------------------------------------------------------------------------*/
-
 			tokcnt = GetTokensA ( buffer, ",", tokens, MAXTOKS );
 
 			if ( lineno == 1 )
 			{
 
-// ==> /var/local/tmp/getdata_32081.csv <==
-// 0     1    2    3   4         5      6      7  8   9      10   11     12              13                   14    15     16    17   18      19    20     21    22   23     24     25     26
-// close,high,low,open,priceDate,symbol,volume,id,key,subkey,date,updated,changeOverTime,marketChangeOverTime,uOpen,uClose,uHigh,uLow,uVolume,fOpen,fClose,fHigh,fLow,fVolume,label,change,changePercent
-// close,high,low,open,priceDate,symbol,volume,id,key,subkey,date,updated,changeOverTime,marketChangeOverTime,uOpen,uClose,uHigh,uLow,uVolume,fOpen,fClose,fHigh,fLow,fVolume,label,change,changePercent
+				int GetIndex ( char *Field )
+				{
+					for ( int ndx = 0; ndx < tokcnt; ndx++ )
+					{
+						if ( strcmp ( Field, tokens[ndx] ) == 0 )
+						{
+							return ( ndx );
+						}
+					}
+					return ( -1 );
+				}
 
-// ==> /var/local/tmp/getdata_31936.csv <==
-// 0     1    2    3   4         5      6      7  8   9      10   11     12              13                   14    15     16   17     18    19   20    21     22   
-// close,high,low,open,priceDate,symbol,volume,id,key,subkey,date,updated,changeOverTime,marketChangeOverTime,uClose,uHigh,uLow,fClose,fHigh,fLow,label,change,changePercent
+				if (( DateNdx = GetIndex ( "date" )) == -1 )
+				{
+					printf ( "missing date\n" );
+					return ( 0 );
+				}
+				if (( OpenNdx = GetIndex ( "open" )) == -1 )
+				{
+					printf ( "missing open\n" );
+					return ( 0 );
+				}
+				if (( HighNdx = GetIndex ( "high" )) == -1 )
+				{
+					printf ( "missing high\n" );
+					return ( 0 );
+				}
+				if (( LowNdx = GetIndex ( "low" )) == -1 )
+				{
+					printf ( "missing low\n" );
+					return ( 0 );
+				}
+				if (( CloseNdx = GetIndex ( "close" )) == -1 )
+				{
+					printf ( "missing close\n" );
+					return ( 0 );
+				}
+				if (( VolumeNdx = GetIndex ( "volume" )) == -1 )
+				{
+					printf ( "missing volume\n" );
+					return ( 0 );
+				}
 
-// tiingo
-// date,open,high,low,close,volume
-// 2024-04-05,23.09,23.09,23.09,23.09,0
-// 2024-04-08,23.11,23.11,23.11,23.11,0
-// 2024-04-09,23.17,23.17,23.17,23.17,0
-// 
-int GetIndex ( char *Field )
-{
-	for ( int ndx = 0; ndx < tokcnt; ndx++ )
-	{
-		if ( strcmp ( Field, tokens[ndx] ) == 0 )
-		{
-			return ( ndx );
-		}
-	}
-	return ( -1 );
-}
-				if (( DateNdx = GetIndex ( "priceDate" )) == -1 )
-				{
-					if (( DateNdx = GetIndex ( "date" )) == -1 )
-					{
-						printf ( "missing date\n" );
-						return ( 0 );
-					}
-				}
-				if (( OpenNdx = GetIndex ( "fOpen" )) == -1 )
-				{
-					if (( OpenNdx = GetIndex ( "open" )) == -1 )
-					{
-						printf ( "missing open\n" );
-						return ( 0 );
-					}
-				}
-				if (( HighNdx = GetIndex ( "fHigh" )) == -1 )
-				{
-					if (( HighNdx = GetIndex ( "high" )) == -1 )
-					{
-						printf ( "missing high\n" );
-						return ( 0 );
-					}
-				}
-				if (( LowNdx = GetIndex ( "fLow" )) == -1 )
-				{
-					if (( LowNdx = GetIndex ( "low" )) == -1 )
-					{
-						printf ( "missing low\n" );
-						return ( 0 );
-					}
-				}
-				if (( CloseNdx = GetIndex ( "fClose" )) == -1 )
-				{
-					if (( CloseNdx = GetIndex ( "close" )) == -1 )
-					{
-						printf ( "missing close\n" );
-						return ( 0 );
-					}
-				}
-				if (( VolumeNdx = GetIndex ( "fVolume" )) == -1 )
-				{
-					if (( VolumeNdx = GetIndex ( "volume" )) == -1 )
-					{
-						printf ( "missing volume\n" );
-						return ( 0 );
-					}
-				}
+				continue;
 			}
 
-/*---------------------------------------------------------------------------
-			switch ( Period )
-			{
-				case PERIOD_ONE_MONTH:
-				case PERIOD_TWO_YEAR:
-				case PERIOD_THREE_YEAR:
-				case PERIOD_FIVE_YEAR:
-				case PERIOD_TEN_YEAR:
-					sprintf ( xhistory.xhdate, "%10.10s", tokens[4] );
-					xhistory.xhopen = nsAtof(tokens[19]);
-					xhistory.xhclose = nsAtof(tokens[20]);
-					xhistory.xhhigh = nsAtof(tokens[21]);
-					xhistory.xhlow  = nsAtof(tokens[22]);
-					xhistory.xhvolume = nsAtol(tokens[VolumeNdx]);
-					break;
-				default:
-					sprintf ( xhistory.xhdate, "%10.10s", tokens[0] );
-					xhistory.xhopen = nsAtof(tokens[1]);
-					xhistory.xhhigh = nsAtof(tokens[2]);
-					xhistory.xhlow  = nsAtof(tokens[3]);
-					xhistory.xhclose = nsAtof(tokens[4]);
-					xhistory.xhvolume = nsAtol(tokens[5]);
-					break;
-			}
----------------------------------------------------------------------------*/
 			sprintf ( xhistory.xhdate, "%10.10s", tokens[DateNdx] );
 			xhistory.xhopen = nsAtof(tokens[OpenNdx]);
 			xhistory.xhclose = nsAtof(tokens[CloseNdx]);

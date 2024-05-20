@@ -1,4 +1,4 @@
-//     Programs called by invest.cgi
+//     Invest extras
 // 
 //     Copyright (C)  2019 - 2024 Tom Stevelt
 // 
@@ -21,8 +21,6 @@
 #include	<unistd.h>
 #include	<string.h>
 #include	<ctype.h>
-#include	<math.h>
-#include	<errno.h>
 
 #include <stdint.h>
 #include <assert.h>
@@ -32,75 +30,37 @@
 #include <openssl/buffer.h>
 #include <openssl/evp.h>
 #include <sys/types.h>
-#include <curl/curl.h>
 
 #include	"shslib.h"
 
 #include	"dbylib.h"
 
 #define		STOCK
-#define		FUNDAMENTAL
-#define		HISTORY
 #define		PORTFOLIO
+#define		HISTORY
 #include	"fileinvest.h"
 #include	"invlib.h"
 
-#define		INSERT_FIELDS	"Hticker, Hdate, Hopen, Hhigh, Hlow, Hclose, Hvolume"
-
-#define		MAX_SHORT_STRING	256
-#define		MAX_LONG_STRING		2048
-#define		MAXPAGES			20
-
-#define		FORMAT_JSON			91
-#define		FORMAT_CSV			92
-
 TYPE	int		Debug;
-TYPE	int		Format;
-TYPE	int		UseTiingo;
-TYPE	int		Quiet;
 TYPE	char	Today[12];
-TYPE	char	Yesterday[12];
-TYPE	char	MonthAgoDate[12];
-TYPE	char	YearAgoDate[12];
-TYPE	char	PastDate[12];
-TYPE	int		CheckSlast;
-TYPE	char	*FlagFile;
-TYPE	char	*SubjectFile;
+TYPE	char	FiveYearsAgo[12];
+TYPE	int		TotalUpdated;
+TYPE	char	OutFileName[256];
+TYPE	FILE	*fpOutput;
+TYPE	DATEVAL	dvToday;
+TYPE	DATEVAL	dvData;
+TYPE	int		VisitCount;
+TYPE	int		CheckCount;
+TYPE	int		FoundCount;
 
-#define	MODE_ALL		11
-#define	MODE_NULL		21
-#define	MODE_ONE		31
+#define		MODE_ALL		101
+#define		MODE_ACTIVE		102
+#define		MODE_MEMBER		103
+#define		MODE_ONE		104
 TYPE	int		RunMode;
-
-#define	PERIOD_OHLC			41
-#define	PERIOD_PREVIOUS		42
-#define	PERIOD_ONE_MONTH	43
-#define	PERIOD_TWO_YEAR		44
-#define	PERIOD_THREE_YEAR	45
-#define	PERIOD_FIVE_YEAR	46
-#define	PERIOD_TEN_YEAR		47
-#define	PERIOD_PAST			48
-TYPE	int		Period;
-
-TYPE	char	TempFileName[128];
-TYPE	int		StockCount;
-TYPE	int		HistoryCount;
-TYPE	int		SlastCount;
-TYPE	int		PE_Count;
-TYPE	int		SourceTime;
-TYPE	int		DestinationTime;
-TYPE	int		InsertFailedErrorCount;
-TYPE	int		MissingMajorDataErrorCount;
-TYPE	int		MissingBenchmarkDataErrorCount;
-TYPE	int		MissingPortfolioDataErrorCount;
-TYPE	int		MissingOtherDataErrorCount;
-TYPE	int		StillOpenErrorCount;
-TYPE	char	cmdline[2048];
-TYPE	char	buffer[1024];
-#define		MAXTOKS		30
-TYPE	char	*tokens[MAXTOKS];
-TYPE	int		tokcnt;
-
+TYPE	char	OneTicker[22];
+TYPE	int		Days;
+TYPE	char	*Range;
 
 /*----------------------------------------------------------
 	mysql and dbylib stuff
@@ -116,12 +76,6 @@ char	*LogFileName = "/var/local/invest.log";
 TYPE	char	*LogFileName;
 #endif
 
-/*----------------------------------------------------------
-	libcurl stuff
-----------------------------------------------------------*/
-TYPE	CURL		*curl;
-TYPE	CURLcode	curlRV;
-
 /*------------------------------
 :.,$d
 :r ! mkproto -p *.c
@@ -133,5 +87,5 @@ int EachStock ( void );
 /* getargs.c */
 void getargs ( int argc , char *argv []);
 
-/* getdata.c */
+/* getsplits.c */
 int main ( int argc , char *argv []);

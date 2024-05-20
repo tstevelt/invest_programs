@@ -16,7 +16,6 @@ PRG = /usr/local/bin/$(PROG)
 FILES = \
 	$(LIB)(getdata.o)		\
 	$(LIB)(getargs.o)		\
-	$(LIB)(CheckSplits.o)	\
 	$(LIB)(EachStock.o)
 
 .SILENT:

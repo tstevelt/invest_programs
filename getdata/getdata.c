@@ -34,6 +34,8 @@
 	tms		02/04/2024	Default format is csv.
 	tms		02/04/2024	Changed historial to get fully adjusted numbers.
 	tms		02/04/2024	Changed splits to use fully adjusted close
+	tms		05/16/2024	Moved CheckSplits() to getsplits program
+	tms		05/16/2024	Changed historial back to historical (not adjusted)
 
 ----------------------------------------------------------------------------*/
 //     Programs called by invest.cgi
@@ -121,10 +123,6 @@ int main ( int argc, char *argv[] )
 				sprintf ( WhereClause, "Sticker = '%s'", xstock.xsticker );
 			}
 			LoadStockCB ( &MySql, WhereClause, "Sticker", &xstock, (int(*)()) EachStock, 1 );
-			break;
-
-		case MODE_SPLITS:
-			CheckSplits ();
 			break;
 	}
 
@@ -258,9 +256,6 @@ StillOpenErrorCount
 				}
 			}
 
-			break;
-
-		case MODE_SPLITS:
 			break;
 
 		default:

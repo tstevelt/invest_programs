@@ -28,11 +28,9 @@ static void Usage ()
 	printf ( "USAGE: getdata -all        [options]\n" );
 	printf ( "USAGE: getdata -null       [options]\n" );
 	printf ( "USAGE: getdata -one TICKER [options]\n" );
-	printf ( "USAGE: getdata -splits\n" );
 	printf ( " -all    = all stocks where stock.Slast in past 30 days.\n" );
 	printf ( " -null   = where Slast is NULL\n" );
 	printf ( " -one    = one stock, regardless of stock.Slast.\n" );
-	printf ( " -splits = check all stocks for splits.\n" );
 	printf ( "Options:\n" );
 	printf ( " -fmt x     = csv or json, default is csv\n" );
 	printf ( " period     = default is previous day\n" );
@@ -78,11 +76,6 @@ void getargs ( int argc, char *argv[] )
 		{
 			RunMode = MODE_NULL;
 			CheckSlast = 0;
-		}
-		else if ( nsStrcmp ( argv[xa], "-splits" ) == 0 )
-		{
-			RunMode = MODE_SPLITS;
-			Format = FORMAT_CSV;
 		}
 		else if ( nsStrcmp ( argv[xa], "-slast" ) == 0 )
 		{
