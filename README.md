@@ -68,6 +68,22 @@ Options:
  -nodb        = no db update, statements to stdout
  -d [#]       = debug, no db update
 ```
+---------------------------------------------------------------------------
+getsplits Scan stock history for price jumps, verify with IEX /splits/
+```
+USAGE: getsplits -all           [options]
+USAGE: getsplits -active        [options]
+USAGE: getsplits -member ID     [options]
+USAGE: getsplits -ticker TICKER [options]
+ -all    = all stocks
+ -active = stocks in all portfolios
+ -member = stocks in one member portfolio
+ -ticker = one stock
+Options:
+-range x  = range to retrieve. default 2w
+-d1       = debug
+-d2       = debug, more verbose
+```
 -------------------------------------------------------------------------------
 ```
 USAGE: getstats -all         [options]
@@ -126,6 +142,18 @@ Options:
  -v      = verbose
  -d [#]  = debug, no db update
 ```
+---------------------------------------------------------------------------
+cleandata Check database for weird data.
+```
+USAGE: cleandata -stock  date [-d]
+   Deletes stocks and history where Slast < date (if not in portfolio)
+USAGE: cleandata -history {equal|less} date [-d]
+   Deletes history and average records
+USAGE: cleandata -report {all | TICKER} date [-d]
+   date = history should be loaded up to and including this date. *
+format date as yyyy-mm-dd
+```
+* Report option disabled, too expensive.
 
 ## Display data on the website.
 
