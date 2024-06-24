@@ -27,6 +27,7 @@
 static int Usage ()
 {
 	printf ( "USAGE: UpdateFundamental -all           [options]\n" );
+	printf ( "USAGE: UpdateFundamental -owned         [options]\n" );
 	printf ( "USAGE: UpdateFundamental -file filename [options]\n" );
 	printf ( "USAGE: UpdateFundamental -ticker ticker [options]\n" );
 	printf ( "Options:\n" );
@@ -57,6 +58,10 @@ void getargs ( int argc, char *argv[] )
 		if ( nsStrcmp ( argv[xa], "-all" ) == 0 )
 		{
 			StockIndex = 'A';
+		}
+		else if ( nsStrcmp ( argv[xa], "-owned" ) == 0 )
+		{
+			StockIndex = 'P';
 		}
 		else if ( xa + 1 < argc && nsStrcmp ( argv[xa], "-file" ) == 0 )
 		{

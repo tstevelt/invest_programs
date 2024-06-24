@@ -68,18 +68,19 @@ TYPE	char	*FlagFile;
 TYPE	char	*SubjectFile;
 
 #define	MODE_ALL		11
-#define	MODE_NULL		21
-#define	MODE_ONE		31
+#define	MODE_OWNED		21
+#define	MODE_NULL		31
+#define	MODE_ONE		41
 TYPE	int		RunMode;
 
-#define	PERIOD_OHLC			41
-#define	PERIOD_PREVIOUS		42
-#define	PERIOD_ONE_MONTH	43
-#define	PERIOD_TWO_YEAR		44
-#define	PERIOD_THREE_YEAR	45
-#define	PERIOD_FIVE_YEAR	46
-#define	PERIOD_TEN_YEAR		47
-#define	PERIOD_PAST			48
+#define	PERIOD_OHLC			51
+#define	PERIOD_PREVIOUS		52
+#define	PERIOD_ONE_MONTH	53
+#define	PERIOD_TWO_YEAR		54
+#define	PERIOD_THREE_YEAR	55
+#define	PERIOD_FIVE_YEAR	56
+#define	PERIOD_TEN_YEAR		57
+#define	PERIOD_PAST			58
 TYPE	int		Period;
 
 TYPE	char	TempFileName[128];

@@ -3,6 +3,11 @@
 	Author  : Tom Stevelt
 	Date    : 11/08/2023
 	Synopsis: Update price sensitive fields. Run in morning after 'getdata'
+
+	Who		Date		Modification
+	---------------------------------------------------------------------
+	tms		06/10/2024	Added -owned option
+
 ----------------------------------------------------------------------------*/
 //     Programs called by invest.cgi
 // 
@@ -66,6 +71,14 @@ int main ( int argc, char *argv[] )
 	else if ( StockIndex == 'T' )
 	{
 		sprintf ( WhereClause, "Sticker = '%s'", Ticker );
+		LoadStockCB ( &MySql, WhereClause, "Sticker", &xstock, (int(*)()) EachStock, 0 );
+	}
+	else if ( StockIndex == 'P' )
+	{
+		sprintf ( WhereClause, 
+			"Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c'",
+						STYPE_BOND, STYPE_ETF, STYPE_CRYPTO, STYPE_INDEX, STYPE_OTHER);
+		strcat ( WhereClause, " and (select count(*) from  portfolio where Pticker = Sticker) > 0" );
 		LoadStockCB ( &MySql, WhereClause, "Sticker", &xstock, (int(*)()) EachStock, 0 );
 	}
 	else

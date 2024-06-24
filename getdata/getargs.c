@@ -26,9 +26,11 @@
 static void Usage ()
 {
 	printf ( "USAGE: getdata -all        [options]\n" );
+	printf ( "USAGE: getdata -owned      [options]\n" );
 	printf ( "USAGE: getdata -null       [options]\n" );
 	printf ( "USAGE: getdata -one TICKER [options]\n" );
 	printf ( " -all    = all stocks where stock.Slast in past 30 days.\n" );
+	printf ( " -owned  = stocks held in portfolios\n" );
 	printf ( " -null   = where Slast is NULL\n" );
 	printf ( " -one    = one stock, regardless of stock.Slast.\n" );
 	printf ( "Options:\n" );
@@ -72,6 +74,10 @@ void getargs ( int argc, char *argv[] )
 		{
 			RunMode = MODE_ALL;
 		}
+		else if ( nsStrcmp ( argv[xa], "-owned" ) == 0 )
+		{
+			RunMode = MODE_OWNED;
+		}
 		else if ( nsStrcmp ( argv[xa], "-null" ) == 0 )
 		{
 			RunMode = MODE_NULL;
@@ -112,7 +118,6 @@ void getargs ( int argc, char *argv[] )
 			xa++;
 			sprintf ( PastDate, "%s", argv[xa] );
 
-//			RunMode = MODE_ALL;
 			CheckSlast = 0;
 		}
 		else if ( xa + 1 < argc && nsStrcmp ( argv[xa], "-one" ) == 0 )

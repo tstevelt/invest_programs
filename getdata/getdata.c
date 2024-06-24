@@ -36,6 +36,7 @@
 	tms		02/04/2024	Changed splits to use fully adjusted close
 	tms		05/16/2024	Moved CheckSplits() to getsplits program
 	tms		05/16/2024	Changed historial back to historical (not adjusted)
+	tms		06/10/2024	Added -owned option
 
 ----------------------------------------------------------------------------*/
 //     Programs called by invest.cgi
@@ -87,6 +88,10 @@ int main ( int argc, char *argv[] )
 
 	switch ( RunMode )
 	{
+		case MODE_OWNED:
+			sprintf ( WhereClause, "Sticker in ( 'DIA', 'EFA', 'IWM', 'QQQ', 'SPY' )" );
+			LoadStockCB ( &MySql, WhereClause, "Sticker", &xstock, (int(*)()) EachStock, 1 );
+			/* fall-throught */
 		case MODE_ALL:
 			if ( Period == PERIOD_OHLC )
 			{
@@ -99,6 +104,10 @@ int main ( int argc, char *argv[] )
 			else
 			{
 				sprintf ( WhereClause, "Slast < '%s' and Slast > '%s'", Yesterday, MonthAgoDate );
+			}
+			if ( RunMode == MODE_OWNED )
+			{
+				strcat ( WhereClause, " and (select count(*) from  portfolio where Pticker = Sticker) > 0" );
 			}
 			LoadStockCB ( &MySql, WhereClause, "Sticker", &xstock, (int(*)()) EachStock, 1 );
 			break;
@@ -129,6 +138,7 @@ int main ( int argc, char *argv[] )
 	switch ( RunMode )
 	{
 		case MODE_ALL:
+		case MODE_OWNED:
 		case MODE_NULL:
 		case MODE_ONE:
 			if ( StockCount == 1 )

@@ -46,7 +46,7 @@ int EachStock ( XSTOCK *ptr )
 		sprintf ( WhereClause, "Fticker = '%s'", ptr->xsticker );
 		if (LoadFundamental ( &MySql, WhereClause, &xfundamental,  0 ) == 0 )
 		{
-			fprintf ( stderr, "%s fundamental record\n", ptr->xsticker );
+			fprintf ( stderr, "FIXIT insert into fundamental (Fticker) value ( '%s' );\n", ptr->xsticker );
 			ErrorCount++;
 			return ( 0 );
 		}
