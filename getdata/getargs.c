@@ -176,6 +176,12 @@ void getargs ( int argc, char *argv[] )
 		Usage ();
 	}
 
+	if ( Period == PERIOD_PAST && UseTiingo )
+	{
+		printf ( "\n**** PAST not supported by Tiingo ****\n\n" );
+		Usage ();
+	}
+
 	if ( Period == PERIOD_OHLC && Format == FORMAT_CSV )
 	{
 		Usage ();

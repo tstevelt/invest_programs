@@ -176,7 +176,7 @@ int EachStock ()
 	if ( Debug )
 	{
 		printf ( "%s\n", cmdline );
-		if ( 1 == 2 && Period == PERIOD_PAST )
+		if ( 1 == 1 && Period == PERIOD_PAST )
 		{
 			exit ( 1 );
 		}
