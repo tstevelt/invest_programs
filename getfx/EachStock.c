@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
-	Program : getdata/EachStock.c
+	Program : getfx/EachStock.c
 	Author  : Tom Stevelt
-	Date    : 2019 - 2024
+	Date    : 2025
 	Synopsis: For each stock, download data from IEX (or Tiingo) and save.
 ----------------------------------------------------------------------------*/
 //     Programs called by invest.cgi
 // 
-//     Copyright (C)  2019 - 2024 Tom Stevelt
+//     Copyright (C)  2025 Tom Stevelt
 // 
 //     This program is free software: you can redistribute it and/or modify
 //     it under the terms of the GNU Affero General Public License as
@@ -21,7 +21,7 @@
 //     You should have received a copy of the GNU Affero General Public License
 //     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include	"getdata.h"
+#include	"getfx.h"
 
 static int BreakOut ()
 {
@@ -43,7 +43,7 @@ int GetIndex ( char *Field )
 int EachStock ()
 {
 	int		rv, lineno, Expected;
-	int		DateNdx, OpenNdx, HighNdx, LowNdx, CloseNdx, VolumeNdx;
+	int		DateNdx, OpenNdx, HighNdx, LowNdx, CloseNdx;
 	FILE	*tfp;
 	time_t	stime, etime;
 	int		HistoryThisStock;
@@ -51,27 +51,18 @@ int EachStock ()
 	double	LastClose;
 	char	HighDate[12];
 	double	NewHigh;
-	char	*FormatString;
-	char	*Tags[100];
 	DATEVAL			dvDate;
-	DATETIMEVAL		dtVal;
 
-	switch ( xstock.xstype[0] )
+	if ( xstock.xstype[0] != STYPE_FX )
 	{
-		case STYPE_CRYPTO:
-		case STYPE_BOND:
-		case STYPE_INDEX:
-		case STYPE_FX:
-			return ( 0 );
-		default:
-			break;
+		return ( 0 );
 	}
 
 	StockCount++;
 
 	if ( Debug )
 	{
-		printf ( "%s %s\n", xstock.xsticker, xstock.xslast );
+		printf ( "EachStock: %s %s\n", xstock.xsticker, xstock.xslast );
 	}
 
 	HistoryThisStock = 0;
@@ -83,156 +74,74 @@ int EachStock ()
 
 	Expected = 6;
 
-	if ( UseTiingo )
+	CurrentDateval ( &dvDate );
+
+	switch ( Period )
 	{
-		CurrentDateval ( &dvDate );
+		case PERIOD_ONE_MONTH:
+			if ( dvDate.month > 1 )
+			{
+				sprintf ( xstock.xslast, "%04d-%02d-%02d", dvDate.year4, dvDate.month - 1, 1 /*dvDate.day*/ );
+			}
+			else
+			{
+				sprintf ( xstock.xslast, "%04d-%02d-%02d", dvDate.year4 - 1, 12, 1 );
+			}
+			break;
 
-		switch ( Period )
-		{
-			case PERIOD_ONE_MONTH:
-				if ( dvDate.month > 1 )
-				{
-					sprintf ( xstock.xslast, "%04d-%02d-%02d", dvDate.year4, dvDate.month - 1, 1 /*dvDate.day*/ );
-				}
-				else
-				{
-					sprintf ( xstock.xslast, "%04d-%02d-%02d", dvDate.year4 - 1, 12, 1 );
-				}
-				break;
+		case PERIOD_TWO_YEAR:
+			sprintf ( xstock.xslast, "%04d-%02d-%02d", dvDate.year4 - 2, dvDate.month, dvDate.day );
+			break;
 
-			case PERIOD_TWO_YEAR:
-				sprintf ( xstock.xslast, "%04d-%02d-%02d", dvDate.year4 - 2, dvDate.month, dvDate.day );
-				break;
+		case PERIOD_THREE_YEAR:
+			sprintf ( xstock.xslast, "%04d-%02d-%02d", dvDate.year4 - 3, dvDate.month, dvDate.day );
+			break;
 
-			case PERIOD_THREE_YEAR:
-				sprintf ( xstock.xslast, "%04d-%02d-%02d", dvDate.year4 - 3, dvDate.month, dvDate.day );
-				break;
+		case PERIOD_FIVE_YEAR:
+			sprintf ( xstock.xslast, "%04d-%02d-%02d", dvDate.year4 - 5, dvDate.month, dvDate.day );
+			break;
 
-			case PERIOD_FIVE_YEAR:
-				sprintf ( xstock.xslast, "%04d-%02d-%02d", dvDate.year4 - 5, dvDate.month, dvDate.day );
-				break;
+		case PERIOD_TEN_YEAR:
+			sprintf ( xstock.xslast, "%04d-%02d-%02d", dvDate.year4 - 10, dvDate.month, dvDate.day );
+			break;
 
-			case PERIOD_TEN_YEAR:
-				sprintf ( xstock.xslast, "%04d-%02d-%02d", dvDate.year4 - 10, dvDate.month, dvDate.day );
-				break;
-
-			default:
-				if ( nsStrncmp ( xstock.xslast, "(null)", 6 ) == 0 )
-				{
-					sprintf ( xstock.xslast, "%04d-%02d-%02d", dvDate.year4 - 1, dvDate.month, dvDate.day );
-				}
-				break;
-		}
-
-#ifdef HAVE_LIBCURL
-		sprintf ( cmdline, 
-			"%s/daily/%s/prices?startDate=%s&format=csv&columns=date,open,high,low,close,volume&token=%s",
-				env_ApiURL, xstock.xsticker, 
-				xstock.xslast,
-				env_ApiKey );
-#else
-		sprintf ( cmdline, 
-			"curl -s '%s/daily/%s/prices?startDate=%s&format=csv&columns=date,open,high,low,close,volume&token=%s' > %s",
-				env_ApiURL, xstock.xsticker, 
-				xstock.xslast,
-				env_ApiKey, TempFileName );
-#endif
+		default:
+			sprintf ( xstock.xslast, "%s", Yesterday );
+			break;
 	}
-	else
-	{
 
-		if ( Format == FORMAT_CSV )
-		{
-			FormatString = "format=csv";
-		}
+/*---------------------------------------------------------------------------
+# Alternative
+TIINGO_APISTR       2b11ee15eefa81de13f020d2cbfc654e0f19092b
+TIINGO_URL          https://api.tiingo.com/tiingo
+	'-forex' )
+		if [ "$DATE" ]
+		then
+			# curl -s "https://api.tiingo.com/tiingo/fx/$TICKER/prices?startDate=$DATE&resampleFreq=24hour&token=$APISTR" | sed 's/,/\n/g'
+			curl -s "https://api.tiingo.com/tiingo/fx/$TICKER/prices?startDate=$DATE&resampleFreq=24hour&token=$APISTR&format=csv"
 		else
-		{
-			FormatString = "";
-		}
-
-		switch ( Period )
-		{
-			case PERIOD_OHLC:
-				sprintf ( cmdline, 
-					"%s/stock/%s/ohlc?token=%s",
-							env_ApiURL, xstock.xsticker, env_ApiKey );
-				break;
-
-			case PERIOD_PREVIOUS:
-				sprintf ( cmdline, 
-					"%s/stock/%s/previous?filter=date,open,high,low,close,volume&%s&token=%s",
-							env_ApiURL, xstock.xsticker, FormatString, env_ApiKey );
-				break;
-
-			case PERIOD_PAST:
-				sprintf ( WhereClause, "Hticker = '%s' and Hdate = '%s'", xstock.xsticker, PastDate );
-				if (  LoadHistoryCB ( &MySql, WhereClause, NULL, &xhistory, BreakOut, 0 ) >= 1 )
-				{
-					// if ( Debug )
-					{
-						printf ( "%s %s already loaded in history\n", xstock.xsticker,  xhistory.xhdate );
-					}
-					return ( 0 );
-				}
-				/*----------------------------------------------------------------------------------------
-					ignores filter=
-					date,uClose,uOpen,uHigh,uLow,uVolume,close,open,high,low,volume,change,changePercent,label,changeOverTime,symbol
-					2020-02-18,319,315.36,319.75,314.61,38190545,319,315.36,319.75,314.61,38190545,0,0,Feb 18,0,AAPL
-				----------------------------------------------------------------------------------------*/
-				sprintf ( cmdline, 
-					"%s/stock/%s/chart/date/%s?chartByDay=true&%s&token=%s",
-							env_ApiURL, xstock.xsticker, PastDate, FormatString, env_ApiKey );
-				Expected = 16;
-				break;
-
-			case PERIOD_ONE_MONTH:
-				sprintf ( cmdline, 
-					"%s/stock/%s/chart/1m?%s&token=%s",
-							env_ApiURL, xstock.xsticker, FormatString, env_ApiKey );
-				Expected = 26;
-				break;
-
-			case PERIOD_TWO_YEAR:
-				sprintf ( cmdline, 
-					"%s/stock/%s/chart/2y?%s&token=%s",
-							env_ApiURL, xstock.xsticker, FormatString, env_ApiKey );
-				Expected = 26;
-				break;
-
-			case PERIOD_THREE_YEAR:
-				sprintf ( cmdline, 
-					"%s/stock/%s/chart/3y?%s&token=%s",
-							env_ApiURL, xstock.xsticker, FormatString, env_ApiKey );
-				Expected = 26;
-				break;
-
-			case PERIOD_FIVE_YEAR:
-				sprintf ( cmdline, 
-					"%s/stock/%s/chart/5y?%s&token=%s",
-							env_ApiURL, xstock.xsticker, FormatString, env_ApiKey );
-				Expected = 26;
-				break;
-
-			case PERIOD_TEN_YEAR:
-				sprintf ( cmdline, 
-					"%s/stock/%s/chart/10y?%s&token=%s",
-							env_ApiURL, xstock.xsticker, FormatString, env_ApiKey );
-				Expected = 26;
-				break;
-		}
-
-		IEX_RateLimit ( 0 );
-	}
+			curl -s "https://api.tiingo.com/tiingo/fx/$TICKER/top?token=$APISTR"
+		fi
+---------------------------------------------------------------------------*/
+#ifdef HAVE_LIBCURL
+	sprintf ( cmdline, 
+		"%s/fx/%s/prices?startDate=%s&resampleFreq=24hour&format=csv&columns=date,open,high,low,close&token=%s",
+			env_ApiURL, xstock.xsticker, 
+			xstock.xslast,
+			env_ApiKey );
+#else
+	sprintf ( cmdline, 
+		"curl -s '%s/fx/%s/prices?startDate=%s&resampleFreq=24hour&format=csv&columns=date,open,high,low,close&token=%s' > %s",
+			env_ApiURL, xstock.xsticker, 
+			xstock.xslast,
+			env_ApiKey, TempFileName );
+#endif
 
 	time ( &stime );
 
 	if ( Debug )
 	{
 		printf ( "%s\n", cmdline );
-		if ( 1 == 1 && Period == PERIOD_PAST )
-		{
-			exit ( 1 );
-		}
 	}
 
 #ifdef HAVE_LIBCURL
@@ -285,82 +194,6 @@ int EachStock ()
 
 		TrimRight ( buffer );
 
-		if ( Period == PERIOD_OHLC )
-		{
-/*---------------------------------------------------------------------------
-  0       1      2        3     4              5        6      7      8     9               10    11      12   13   14      15        16       17
-{"open":{"price":204.06,"time":1563197400990},"close":{"price":203.3,"time":1562961600729},"high":205.87,"low":204,"volume":12138487,"symbol":"AAPL"}
----------------------------------------------------------------------------*/
-			if (( tokcnt = GetTokensA ( buffer, ":,", tokens, MAXTOKS )) < 18 )
-			{
-				if ( Debug )
-				{
-					printf ( "tokcnt %d on line %d\n", tokcnt, lineno );
-				}
-				continue;
-			}
-
-			StrToDatetimevalFmt ( tokens[9], DATEFMT_EPOCH_MILLISEC, &dtVal );
-
-#ifdef DEBUG
-#define DEBUG
-printf ( "open   %s time %s\n", tokens[2], tokens[4] );
-printf ( "high   %s\n", tokens[11] );
-printf ( "low    %s\n", tokens[13] );
-printf ( "close  %s time %s %04d-%02d-%02d\n", tokens[7], tokens[9], dtVal.year4, dtVal.month, dtVal.day );
-printf ( "volume %s\n", tokens[15] );
-#endif
-			xhistory.xhopen = nsAtof(tokens[2]);
-			xhistory.xhhigh = nsAtof(tokens[11]);
-			xhistory.xhlow  = nsAtof(tokens[13]);
-			xhistory.xhclose = nsAtof(tokens[7]);
-			xhistory.xhvolume = nsAtol(tokens[15]);
-			sprintf ( xhistory.xhdate, "%04d-%02d-%02d", dtVal.year4, dtVal.month, dtVal.day );
-
-if ( nsStrcmp ( tokens[4], tokens[9] ) > 0 )
-{
-	if ( StillOpenErrorCount < 10 )
-	{
-		printf ( "Market for %s is currently OPEN!\n", xstock.xsticker );
-	}
-	else if ( StillOpenErrorCount == 10 )
-	{
-		printf ( "Not reportiing any more currently OPEN.\n" );
-	}
-	StillOpenErrorCount++;
-	continue;
-}
-
-#ifdef DEBUG
-continue;
-#endif
-
-		}
-		else if ( Period == PERIOD_PAST )
-		{
-			if ( nsStrncmp ( buffer, "close,", 5 ) == 0 )
-			{
-				continue;
-			}
-
-			if (( tokcnt = GetTokensA ( buffer, ",", tokens, MAXTOKS )) < Expected )
-			{
-				if ( Debug )
-				{
-					printf ( "tokcnt %d on line %d\n", tokcnt, lineno );
-				}
-				continue;
-			}
-
-			xhistory.xhclose  = nsAtof(tokens[0]);
-			xhistory.xhhigh   = nsAtof(tokens[1]);
-			xhistory.xhlow    = nsAtof(tokens[2]);
-			xhistory.xhopen   = nsAtof(tokens[3]);
-			sprintf ( xhistory.xhdate, "%10.10s", tokens[4] );
-			xhistory.xhvolume = nsAtol(tokens[6]);
-		}
-		else if ( Format == FORMAT_CSV )
-		{
 			tokcnt = GetTokensA ( buffer, ",", tokens, MAXTOKS );
 
 			if ( lineno == 1 )
@@ -390,49 +223,31 @@ continue;
 					printf ( "missing close\n" );
 					return ( 0 );
 				}
-				if (( VolumeNdx = GetIndex ( "volume" )) == -1 )
-				{
-					printf ( "missing volume\n" );
-					return ( 0 );
-				}
 
 				continue;
 			}
 
 			sprintf ( xhistory.xhdate, "%10.10s", tokens[DateNdx] );
-			xhistory.xhopen = nsAtof(tokens[OpenNdx]);
+			xhistory.xhopen  = nsAtof(tokens[OpenNdx]);
 			xhistory.xhclose = nsAtof(tokens[CloseNdx]);
-			xhistory.xhhigh = nsAtof(tokens[HighNdx]);
-			xhistory.xhlow  = nsAtof(tokens[LowNdx]);
-			xhistory.xhvolume = nsAtol(tokens[VolumeNdx]);
-		}
-		else
-		{
-			if (( tokcnt = JsonTokens  ( buffer, Tags, tokens, 100 )) < Expected )
-			{
-				if ( Debug )
-				{
-					printf ( "tokcnt %d on line %d\n", tokcnt, lineno );
-				}
-				continue;
-			}
+			xhistory.xhhigh  = nsAtof(tokens[HighNdx]);
+			xhistory.xhlow   = nsAtof(tokens[LowNdx]);
 
-			sprintf ( xhistory.xhdate, "%10.10s", tokens[0] );
-			xhistory.xhopen = nsAtof(tokens[1]);
-			xhistory.xhhigh = nsAtof(tokens[2]);
-			xhistory.xhlow  = nsAtof(tokens[3]);
-			xhistory.xhclose = nsAtof(tokens[4]);
-			xhistory.xhvolume = nsAtol(tokens[5]);
-		}
-
-		if ( Period != PERIOD_OHLC && nsStrcmp ( xhistory.xhdate, Today ) == 0 )
-		{
-			if ( Debug )
+			switch ( xstock.xstype2[0] )
 			{
-				printf ( "Skipping history record for today, stock %s\n", xstock.xsticker );
+				case STYPE2_HUNDREDTH:
+					xhistory.xhopen  *= 100.0;
+					xhistory.xhclose *= 100.0;
+					xhistory.xhhigh  *= 100.0;
+					xhistory.xhlow   *= 100.0;
+					break;
+				case STYPE2_BASIS:
+					xhistory.xhopen  *= 10000.0;
+					xhistory.xhclose *= 10000.0;
+					xhistory.xhhigh  *= 10000.0;
+					xhistory.xhlow   *= 10000.0;
+					break;
 			}
-			continue;
-		}
 
 		if ( CheckSlast == 1 && nsStrcmp ( xhistory.xhdate, xstock.xslast ) <= 0 )
 		{
@@ -475,15 +290,14 @@ continue;
 		}
 
 		sprintf ( Statement,
-			"insert into history (%s) values ( '%s', '%s', %f, %f, %f, %f, %ld )",
+			"insert into history (%s) values ( '%s', '%s', %f, %f, %f, %f )",
 				INSERT_FIELDS,
 				xstock.xsticker,
 				xhistory.xhdate,
 				xhistory.xhopen,
 				xhistory.xhhigh,
 				xhistory.xhlow,
-				xhistory.xhclose,
-				xhistory.xhvolume );
+				xhistory.xhclose );
 
 		rv = dbyInsert ( "EachStock", &MySql, Statement, 0, LogFileName );
 
@@ -541,11 +355,6 @@ continue;
 		printf ( "lineno %d\n", lineno );
 	}
 
-	if ( Period == PERIOD_PAST )
-	{
-		fflush ( stdout );
-		return ( 0 );
-	}
 
 	if ( HistoryThisStock > 0 )
 	{
@@ -557,7 +366,7 @@ continue;
 				"update stock set Slast = '%s', Sclose = %f where Sticker = '%s'", 
 						MaxHistDate, LastClose, xstock.xsticker );
 
-			SlastCount += dbyUpdate ( "getdata", &MySql, Statement, 0, LogFileName );
+			SlastCount += dbyUpdate ( "getfx", &MySql, Statement, 0, LogFileName );
 		}
 
 		if ( NewHigh > xstock.xshigh52 )
@@ -569,7 +378,7 @@ continue;
 				"update stock set Shigh52 = %f, Sdate52 = '%s' where Sticker = '%s'", 
 					NewHigh, HighDate, xstock.xsticker );
 
-			if ( dbyUpdate ( "getdata", &MySql, Statement, 0, LogFileName ) != 1 )
+			if ( dbyUpdate ( "getfx", &MySql, Statement, 0, LogFileName ) != 1 )
 			{
 				printf ( "Update Shigh52 and Sdate52 failed on %s\n", xstock.xsticker );
 			}
@@ -588,7 +397,7 @@ continue;
 			  where history.Hticker = '%s' and history.Hdate > date_sub(stock.Slast, interval 52 week)) where Sticker = '%s'", 
 					xstock.xsticker, xstock.xsticker );
 
-		if (( rv = dbyUpdate ( "getdata", &MySql, Statement, 0, LogFileName )) != 1 )
+		if (( rv = dbyUpdate ( "getfx", &MySql, Statement, 0, LogFileName )) != 1 )
 		{
 			printf ( "Update Shigh52 failed on %s, Sdate52 %s Shigh52 %.2f, rv %d\n", 
 					xstock.xsticker, xstock.xsdate52, xstock.xshigh52, rv );
@@ -599,7 +408,7 @@ continue;
 			  where history.Hticker = '%s' and history.Hhigh = stock.Shigh52) where Sticker = '%s'", 
 			  		xstock.xsticker, xstock.xsticker ) ;
 
-		if (( rv = dbyUpdate ( "getdata", &MySql, Statement, 0, LogFileName )) != 1 )
+		if (( rv = dbyUpdate ( "getfx", &MySql, Statement, 0, LogFileName )) != 1 )
 		{
 			printf ( "Update Sdate52 failed on %s, Sdate52 %s Shigh52 %.2f, rv %d\n", 
 					xstock.xsticker, xstock.xsdate52, xstock.xshigh52, rv );

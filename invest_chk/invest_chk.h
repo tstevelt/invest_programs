@@ -15,12 +15,14 @@
 //     You should have received a copy of the GNU Affero General Public License
 //     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<unistd.h>
 #include	<string.h>
 #include	<ctype.h>
 #include	<math.h>
+#include	<errno.h>
 
 #include <stdint.h>
 #include <assert.h>
@@ -35,93 +37,17 @@
 
 #include	"dbylib.h"
 
-#define		MEMBER
 #define		STOCK
-#define		FUNDAMENTAL
 #include	"fileinvest.h"
 #include	"invlib.h"
 
-/*----------------------------------------------------------
-	app defines and variables
-----------------------------------------------------------*/
-#define		SIX_DAYS	518400
-#define		SEVEN_DAYS	604800
-#define		STOCK_TYPES		"SAE"
+#define	MODE_STOCK		11
 
-TYPE	char	StockIndex;
-TYPE	char	*InputFileName;
-TYPE	char	*Ticker;
-TYPE	char	StartTicker;
-TYPE	char	EndTicker;
-TYPE	long	ReportMember;
-TYPE	long	StartTime;
-TYPE	long	EndTime;
-TYPE	long	NapTime;
-TYPE	int		Ignore;
-TYPE	int		UpdateDB;
-TYPE	int		ReportOld;
-TYPE	int		DeleteOld;
-TYPE	int		Verbose;
+TYPE	int		RunMode;
 TYPE	int		Debug;
-TYPE	char	cmdline[1024];
-TYPE	char	*Python_Script;
-TYPE	char	SQL_Script[128];
 
-#define		MAXSTRING	128
-
-typedef struct
-{
-	char	xsticker[21];
-	char	xsname[31];
-	double	xsclose;
-
-	
-	char	quoteType[MAXSTRING];
-	char	country[MAXSTRING];
-	long	ebitda;
-	long	enterpriseValue;
-	double	enterpriseToEbitda;
-	double	trailingEps;
-	double	forwardEps;
-	double	forwardPE;
-	double	profitMargins;
-	long	floatShares;
-	double	beta;
-	double	priceToBook;
-	double	growth5;
-	double	growth1;
-	double	targetMeanPrice;
-	double	recommendationMean;
-	double	quickRatio;
-	double	debtToEquity;
-	double	returnOnAssets;
-	long	freeCashflow;
-	double	revenueGrowth;
-	double	earningsGrowth;
-	long	sharesOutstanding;
-	// double	trailingAnnualDividendYield;
-	double	forwardYield;
-
-	/* following for ETF */
-	long	totalAssets;
-	double	etf_yield;
-	double	threeYearAverageReturn;
-	double	fiveYearAverageReturn;
-	long	marketCap;
-
-	long	averageDailyVolume10Day;
-	char	fundInceptionDate[12];
-
-} STOCK_RECORD;
-
-TYPE	STOCK_RECORD	StockRecord;
-
-TYPE	int				StockCount;
-TYPE	int				ErrorCount;
-TYPE	int				AgeCount;
-TYPE	int				UpdateCount;
-TYPE	int				InsertCount;
-TYPE	int				DoInsert;
+TYPE	int		StockCount;
+TYPE	int		ErrorCount;
 
 /*----------------------------------------------------------
 	mysql and dbylib stuff
@@ -142,14 +68,11 @@ TYPE	char	*LogFileName;
 :r ! mkproto -p *.c
 ------------------------------*/
 
-/* EachFundamental.c */
-int EachFundamental ( void );
-
 /* EachStock.c */
-int EachStock ( XSTOCK *ptr );
+int EachStock ( void );
 
 /* getargs.c */
 void getargs ( int argc , char *argv []);
 
-/* getfundSEC.c */
+/* invest_chk.c */
 int main ( int argc , char *argv []);

@@ -26,6 +26,7 @@
 static int Usage ()
 {
 	printf ( "USAGE: getfundSEC index          [options]\n" );
+	printf ( "USAGE: getfundSEC -alpha F T     [options]\n" );
 	printf ( "USAGE: getfundSEC -file filename [options]\n" );
 	printf ( "USAGE: getfundSEC -ticker ticker [options]\n" );
 	printf ( "USAGE: getfundSEC -old [-delete]\n" );
@@ -36,7 +37,7 @@ static int Usage ()
 	printf ( " 1 = Russell 1000\n" );
 	printf ( " 2 = Russell 2000\n" );
 	printf ( " 3 = Russell 3000\n" );
-	printf ( " O = Other (not in any index)\n" );
+	printf ( " O = All stocks OLD (more than 7 days)\n" );
 	printf ( " A = All stocks\n" );
 	printf ( " E = Only ETF\n" );
 	printf ( "Options:\n" );
@@ -65,6 +66,9 @@ void getargs ( int argc, char *argv[] )
 	UpdateDB = 1;
 	ReportOld = 0;
 	DeleteOld = 0;
+	Ticker = NULL;
+	StartTicker = '?';
+	EndTicker = '?';
 	Python_Script = "getfundSEC.py";
 	
 	for ( xa = 1; xa < argc; xa++ )
@@ -82,6 +86,17 @@ void getargs ( int argc, char *argv[] )
 			xa++;
 			StockIndex = 'F';
 			InputFileName = argv[xa];
+		}
+		else if ( xa + 2 < argc && nsStrcmp ( argv[xa], "-alpha" ) == 0 )
+		{
+			if ( StockIndex != 'O' )
+			{
+				StockIndex = 'r';
+			}
+			xa++;
+			StartTicker = argv[xa][0];
+			xa++;
+			EndTicker = argv[xa][0];
 		}
 		else if ( xa + 1 < argc && nsStrcmp ( argv[xa], "-ticker" ) == 0 )
 		{

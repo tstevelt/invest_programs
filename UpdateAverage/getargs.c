@@ -26,6 +26,7 @@
 static int Usage ()
 {
 	printf ( "USAGE: UpdateAverage -index index   mode [options]\n" );
+	printf ( "USAGE: UpdateAverage -forex         mode [options]\n" );
 	printf ( "USAGE: UpdateAverage -ticker TICKER mode [options]\n" );
 	SindexUsage ( 0 );
 	printf ( "  mode = A for all, Z for zeros\n" );
@@ -43,7 +44,7 @@ void getargs ( int argc, char *argv[] )
 	int		xa;
 	char	StockIndex;
 
-	if ( argc < 4 )
+	if ( argc < 3 )
 	{
 		Usage ();
 	}
@@ -60,6 +61,12 @@ void getargs ( int argc, char *argv[] )
 			StockIndex = toupper ( argv[xa][0] );
 			ValidStockIndex ( StockIndex, 0, (int(*)()) Usage );
 			SetWhereClause ( StockWhereClause, StockIndex );
+			xa++;
+			RunMode = toupper ( argv[xa][0] );
+		}
+		else if ( xa + 1 < argc && nsStrcmp ( argv[xa], "-forex" ) == 0 )
+		{
+			sprintf ( StockWhereClause, "Stype = '%c'", STYPE_FX );
 			xa++;
 			RunMode = toupper ( argv[xa][0] );
 		}
@@ -117,6 +124,12 @@ void getargs ( int argc, char *argv[] )
 		{
 			Usage ();
 		}
+	}
+
+	if ( Debug )
+	{
+		printf ( "%s\n", StockWhereClause );
+		printf ( "%d\n", RunMode );
 	}
 
 	switch ( RunMode )

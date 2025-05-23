@@ -34,6 +34,10 @@ int EachFundamental ()
 
 	sprintf ( StockWhere, "Sticker = '%s'", xfundamental.xfticker );
 	LoadStock ( &MySql, StockWhere, &xstock, 0, 0 );
+	if ( xstock.xscik[0] == 'C' || xstock.xscik[0] != '0' )
+	{
+		return ( 0 );
+	}
 
 #ifdef REPORT_ONLY_HAVE_SEC_CIK
 #define REPORT_ONLY_HAVE_SEC_CIK

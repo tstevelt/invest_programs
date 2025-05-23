@@ -15,12 +15,14 @@
 //     You should have received a copy of the GNU Affero General Public License
 //     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<unistd.h>
 #include	<string.h>
 #include	<ctype.h>
 #include	<math.h>
+#include	<errno.h>
 
 #include <stdint.h>
 #include <assert.h>
@@ -30,98 +32,74 @@
 #include <openssl/buffer.h>
 #include <openssl/evp.h>
 #include <sys/types.h>
+#ifdef HAVE_LIBCURL
+#include <curl/curl.h>
+#endif
 
 #include	"shslib.h"
 
 #include	"dbylib.h"
 
-#define		MEMBER
 #define		STOCK
 #define		FUNDAMENTAL
+#define		HISTORY
+#define		PORTFOLIO
 #include	"fileinvest.h"
 #include	"invlib.h"
 
-/*----------------------------------------------------------
-	app defines and variables
-----------------------------------------------------------*/
-#define		SIX_DAYS	518400
-#define		SEVEN_DAYS	604800
-#define		STOCK_TYPES		"SAE"
+#define		INSERT_FIELDS	"Hticker, Hdate, Hopen, Hhigh, Hlow, Hclose"
 
-TYPE	char	StockIndex;
-TYPE	char	*InputFileName;
-TYPE	char	*Ticker;
-TYPE	char	StartTicker;
-TYPE	char	EndTicker;
-TYPE	long	ReportMember;
-TYPE	long	StartTime;
-TYPE	long	EndTime;
-TYPE	long	NapTime;
-TYPE	int		Ignore;
-TYPE	int		UpdateDB;
-TYPE	int		ReportOld;
-TYPE	int		DeleteOld;
-TYPE	int		Verbose;
+#define		MAX_SHORT_STRING	256
+#define		MAX_LONG_STRING		2048
+#define		MAXPAGES			20
+
+#define		FORMAT_JSON			91
+#define		FORMAT_CSV			92
+
 TYPE	int		Debug;
-TYPE	char	cmdline[1024];
-TYPE	char	*Python_Script;
-TYPE	char	SQL_Script[128];
+TYPE	int		Format;
+TYPE	int		UseTiingo;
+TYPE	int		Quiet;
+TYPE	char	Today[12];
+TYPE	char	Yesterday[12];
+TYPE	char	MonthAgoDate[12];
+TYPE	char	YearAgoDate[12];
+TYPE	char	PastDate[12];
+TYPE	int		CheckSlast;
+TYPE	char	*FlagFile;
+TYPE	char	*SubjectFile;
 
-#define		MAXSTRING	128
+#define	MODE_ALL		11
+#define	MODE_ONE		41
+TYPE	int		RunMode;
 
-typedef struct
-{
-	char	xsticker[21];
-	char	xsname[31];
-	double	xsclose;
+#define	PERIOD_PREVIOUS		52
+#define	PERIOD_ONE_MONTH	53
+#define	PERIOD_TWO_YEAR		54
+#define	PERIOD_THREE_YEAR	55
+#define	PERIOD_FIVE_YEAR	56
+#define	PERIOD_TEN_YEAR		57
+TYPE	int		Period;
 
-	
-	char	quoteType[MAXSTRING];
-	char	country[MAXSTRING];
-	long	ebitda;
-	long	enterpriseValue;
-	double	enterpriseToEbitda;
-	double	trailingEps;
-	double	forwardEps;
-	double	forwardPE;
-	double	profitMargins;
-	long	floatShares;
-	double	beta;
-	double	priceToBook;
-	double	growth5;
-	double	growth1;
-	double	targetMeanPrice;
-	double	recommendationMean;
-	double	quickRatio;
-	double	debtToEquity;
-	double	returnOnAssets;
-	long	freeCashflow;
-	double	revenueGrowth;
-	double	earningsGrowth;
-	long	sharesOutstanding;
-	// double	trailingAnnualDividendYield;
-	double	forwardYield;
+TYPE	char	TempFileName[128];
+TYPE	int		StockCount;
+TYPE	int		HistoryCount;
+TYPE	int		SlastCount;
+TYPE	int		PE_Count;
+TYPE	int		SourceTime;
+TYPE	int		DestinationTime;
+TYPE	int		InsertFailedErrorCount;
+TYPE	int		MissingMajorDataErrorCount;
+TYPE	int		MissingBenchmarkDataErrorCount;
+TYPE	int		MissingPortfolioDataErrorCount;
+TYPE	int		MissingOtherDataErrorCount;
+TYPE	int		StillOpenErrorCount;
+TYPE	char	cmdline[2048];
+TYPE	char	buffer[1024];
+#define		MAXTOKS		30
+TYPE	char	*tokens[MAXTOKS];
+TYPE	int		tokcnt;
 
-	/* following for ETF */
-	long	totalAssets;
-	double	etf_yield;
-	double	threeYearAverageReturn;
-	double	fiveYearAverageReturn;
-	long	marketCap;
-
-	long	averageDailyVolume10Day;
-	char	fundInceptionDate[12];
-
-} STOCK_RECORD;
-
-TYPE	STOCK_RECORD	StockRecord;
-
-TYPE	int				StockCount;
-TYPE	int				ErrorCount;
-TYPE	int				AgeCount;
-TYPE	int				UpdateCount;
-TYPE	int				InsertCount;
-TYPE	int				DoInsert;
 
 /*----------------------------------------------------------
 	mysql and dbylib stuff
@@ -137,19 +115,24 @@ char	*LogFileName = "/var/local/invest.log";
 TYPE	char	*LogFileName;
 #endif
 
+/*----------------------------------------------------------
+	libcurl stuff
+----------------------------------------------------------*/
+#ifdef HAVE_LIBCURL
+TYPE	CURL		*curl;
+TYPE	CURLcode	curlRV;
+#endif
+
 /*------------------------------
 :.,$d
 :r ! mkproto -p *.c
 ------------------------------*/
 
-/* EachFundamental.c */
-int EachFundamental ( void );
-
 /* EachStock.c */
-int EachStock ( XSTOCK *ptr );
+int EachStock ( void );
 
 /* getargs.c */
 void getargs ( int argc , char *argv []);
 
-/* getfundSEC.c */
+/* getfx.c */
 int main ( int argc , char *argv []);

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/local/bin/python3
 #     Programs called by invest.cgi
 # 
 #     Copyright (C)  2019 - 2024 Tom Stevelt

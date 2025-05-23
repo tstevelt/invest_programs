@@ -37,6 +37,7 @@
 	tms		05/16/2024	Moved CheckSplits() to getsplits program
 	tms		05/16/2024	Changed historial back to historical (not adjusted)
 	tms		06/10/2024	Added -owned option
+	tms		02/27/2025  Added ITOT, IDEV, and EMXC
 
 ----------------------------------------------------------------------------*/
 //     Programs called by invest.cgi
@@ -67,11 +68,13 @@ int main ( int argc, char *argv[] )
 
 	getargs ( argc, argv );
 
+#ifdef HAVE_LIBCURL
 	if (( curl = curl_easy_init () ) == NULL )
 	{
 		fprintf ( stderr, "curl init failed\n" );
 		exit ( 1 );
 	}
+#endif
 
 	GetInvestCfg ( UseTiingo );
 
@@ -89,7 +92,7 @@ int main ( int argc, char *argv[] )
 	switch ( RunMode )
 	{
 		case MODE_OWNED:
-			sprintf ( WhereClause, "Sticker in ( 'DIA', 'EFA', 'IWM', 'QQQ', 'SPY' )" );
+			sprintf ( WhereClause, "Sticker in ( 'DIA', 'EFA', 'IDEV', 'EEM', 'EMXC', 'IWM', 'QQQ', 'SPY', 'ITOT'  )" );
 			LoadStockCB ( &MySql, WhereClause, "Sticker", &xstock, (int(*)()) EachStock, 1 );
 			/* fall-throught */
 		case MODE_ALL:
@@ -109,6 +112,7 @@ int main ( int argc, char *argv[] )
 			{
 				strcat ( WhereClause, " and (select count(*) from  portfolio where Pticker = Sticker) > 0" );
 			}
+printf ( "MODE_OWNED WhereClause %s\n", WhereClause );
 			LoadStockCB ( &MySql, WhereClause, "Sticker", &xstock, (int(*)()) EachStock, 1 );
 			break;
 		case MODE_NULL:
@@ -296,7 +300,9 @@ StillOpenErrorCount
 
 	fflush ( stdout );
 
+#ifdef HAVE_LIBCURL
 	curl_easy_cleanup ( curl );
+#endif
 
 	if ( RunMode == MODE_ONE && MissingOtherDataErrorCount > 0 )
 	{

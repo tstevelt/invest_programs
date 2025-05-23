@@ -56,6 +56,12 @@ static	RECORD	Array[] =
 
 static	int	Count = sizeof(Array) / sizeof(RECORD);
 
+static	int EachRecord ( DBY_QUERY *Query )
+	{
+		printf ( "<tr><td align='center'>%s</td><td align='center'>%s</td></tr>\n", Query->EachRow[0], Query->EachRow[1] );
+		return ( 0 );
+	}
+
 int main ( int argc, char *argv[] )
 {
 	WEBPARMS	*ptrWebParms = webInitParms();
@@ -130,12 +136,6 @@ int main ( int argc, char *argv[] )
 				return ( 0 );
 			}
 			break;
-	}
-
-	int EachRecord ( DBY_QUERY *Query )
-	{
-		printf ( "<tr><td align='center'>%s</td><td align='center'>%s</td></tr>\n", Query->EachRow[0], Query->EachRow[1] );
-		return ( 0 );
 	}
 
 	switch ( DataType )

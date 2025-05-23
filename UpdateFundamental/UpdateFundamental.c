@@ -76,16 +76,17 @@ int main ( int argc, char *argv[] )
 	else if ( StockIndex == 'P' )
 	{
 		sprintf ( WhereClause, 
-			"Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c'",
-						STYPE_BOND, STYPE_ETF, STYPE_CRYPTO, STYPE_INDEX, STYPE_OTHER);
+			"Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c'",
+						STYPE_BOND, STYPE_ETF, STYPE_CRYPTO, STYPE_INDEX, STYPE_FX, STYPE_OTHER);
 		strcat ( WhereClause, " and (select count(*) from  portfolio where Pticker = Sticker) > 0" );
+// printf ( "select Sticker from stock where %s\n", WhereClause );
 		LoadStockCB ( &MySql, WhereClause, "Sticker", &xstock, (int(*)()) EachStock, 0 );
 	}
 	else
 	{
 		sprintf ( WhereClause, 
-			"Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c'",
-						STYPE_BOND, STYPE_ETF, STYPE_CRYPTO, STYPE_INDEX, STYPE_OTHER);
+			"Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c'",
+						STYPE_BOND, STYPE_ETF, STYPE_CRYPTO, STYPE_INDEX, STYPE_FX, STYPE_OTHER);
 		LoadStockCB ( &MySql, WhereClause, "Sticker", &xstock, (int(*)()) EachStock, 0 );
 	}
 

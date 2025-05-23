@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.alvin.stocksapp</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/al/AlsStocksProject/Version04/GetStocks.sh</string>
+  </array>
+
+  <key>Nice</key>
+  <integer>1</integer>
+
+ 
+  <!--
+  <key>StartInterval</key>
+  <integer>60</integer>
+
+  <key>ThrottleInterval</key>
+  <integer>120</integer>
+  -->
+ 
+ 
+  <!-- 0 and 7 == Sunday -->
+  <key>StartCalendarInterval</key>
+  <array>
+      <dict>
+          <key>Weekday</key>
+          <integer>1</integer>
+          <key>Hour</key>
+          <integer>11</integer>
+          <key>Minute</key>
+          <integer>0</integer>
+      </dict>
+      <dict>
+          <key>Weekday</key>
+          <integer>2</integer>
+          <key>Hour</key>
+          <integer>11</integer>
+          <key>Minute</key>
+          <integer>0</integer>
+      </dict>
+      <dict>
+          <key>Weekday</key>
+          <integer>3</integer>
+          <key>Hour</key>
+          <integer>11</integer>
+          <key>Minute</key>
+          <integer>0</integer>
+      </dict>
+      <dict>
+          <key>Weekday</key>
+          <integer>4</integer>
+          <key>Hour</key>
+          <integer>11</integer>
+          <key>Minute</key>
+          <integer>0</integer>
+      </dict>
+      <dict>
+          <key>Weekday</key>
+          <integer>5</integer>
+          <key>Hour</key>
+          <integer>11</integer>
+          <key>Minute</key>
+          <integer>0</integer>
+      </dict>
+  </array>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/al/StocksApp.err</string>
+
+  <key>StandardOutPath</key>
+  <string>/Users/al/StocksApp.out</string>
+</dict>
+</plist>

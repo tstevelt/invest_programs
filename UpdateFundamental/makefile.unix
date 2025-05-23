@@ -1,23 +1,12 @@
-
 PROG = UpdateFundamental
-
 LIB = UpdateFundamental.a
-
-#MYSQL_DIR = /usr/lib64
-#MYSQL_FLAGS = -lz -lcrypt -lm -lssl -lcrypto
-#MLIB = $(MYSQL_DIR)/libmysqlclient.so $(MYSQL_FLAGS)
-
-# XLIB = /usr/local/lib64/invlib.a /usr/local/lib64/dbylib.a /usr/local/lib64/shslib.a
-
-XLIB = /usr/local/lib64/invlib.a /usr/local/lib64/dbylib.a \
-		/usr/local/lib64/shslib.a  \
-		/usr/local/lib/libmysqlclient.a \
-		/usr/local/lib/libcrypto.a \
-		/usr/local/lib/libssl.a \
-		/usr/local/Cellar/zlib/1.3.1/lib/libz.a
+MYSQL_DIR = /usr/lib64
+MYSQL_FLAGS = -lz -lcrypt -lm -lssl -lcrypto
+MLIB = $(MYSQL_DIR)/libmysqlclient.so $(MYSQL_FLAGS)
 
 # CFLAGS = -g -fsanitize=address -Wall -Wformat-truncation=0 -I../../include -I/usr/local/include
 
+XLIB = /usr/local/lib64/invlib.a /usr/local/lib64/dbylib.a /usr/local/lib64/shslib.a
 DEF = /usr/local/include
 PRG = /usr/local/bin/$(PROG)
 

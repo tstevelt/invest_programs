@@ -47,6 +47,7 @@ static	DATEVAL	dvPastDate;
 		case STYPE_BOND:
 		case STYPE_CRYPTO:
 		case STYPE_INDEX:
+		case STYPE_FX:
 		case STYPE_OTHER:
 			return ( 0 );
 		default:

@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python3
 #     Programs called by invest.cgi
 # 
 #     Copyright (C)  2019 - 2024 Tom Stevelt
@@ -22,7 +22,7 @@ from datetime import datetime
 import requests
 import pandas as pd
 
-Debug = 0
+Debug = 1
 
 if len(sys.argv) < 6:
 	print ( "USAGE: getfundSEC.py TICKER PRICE CIK FRAME UNIXTIME" )

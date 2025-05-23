@@ -12,6 +12,8 @@
 	tms		11/18/2023	No longer need to update Fvalue. But Add FixStupid.
 	tms		11/28/2023	Remove FixStupid, get good data with getfundIEX
 	tms		11/28/2023	No longer need getfundETF.py
+	tms		08/28/2024	Added -alpha to get approx equal # every day.
+	tms		08/31/2024	Finished 'O' for old. Fixed Report Old only with CIK
 
 ----------------------------------------------------------------------------*/
 //     Programs called by invest.cgi
@@ -35,6 +37,7 @@
 #include	"getfundSEC.h"
 
 int TotalOld = 0;
+extern int     DebugdbySelectCount;
 
 int main ( int argc, char *argv[] )
 {
@@ -54,12 +57,18 @@ int main ( int argc, char *argv[] )
 
 	if ( ReportOld )
 	{
-		sprintf ( WhereClause, "Fupdated < '%ld'", StartTime - SEVEN_DAYS );
-		TotalOld = dbySelectCount ( &MySql, "fundamental", WhereClause, LogFileName );
-		rv = LoadFundamentalCB ( &MySql, WhereClause, "Fticker", &xfundamental, (int(*)()) EachFundamental, 0 );
-		if ( rv == 0 )
+		sprintf ( WhereClause, "Sticker = Fticker and Scik like '0%%' and Fupdated > 0 and Fupdated < %ld", StartTime - SEVEN_DAYS );
+		TotalOld = dbySelectCount ( &MySql, "stock,fundamental", WhereClause, LogFileName );
+
+		if ( TotalOld == 0 )
 		{
 			printf ( "No old fundamentals!\n" );
+		}
+		else
+		{
+			sprintf ( WhereClause, "Fupdated > 0 and Fupdated < %ld", StartTime - SEVEN_DAYS );
+			rv = LoadFundamentalCB ( &MySql, WhereClause, "Fticker", &xfundamental, (int(*)()) EachFundamental, 0 );
+			printf ( "TotalOld %d\n", TotalOld );
 		}
 		exit ( 0 );
 	}
@@ -98,7 +107,39 @@ int main ( int argc, char *argv[] )
 	}
 	else if ( StockIndex == 'x' )
 	{
-		sprintf ( WhereClause, "Sticker = '%s'", Ticker );
+		sprintf ( WhereClause, "Scik like '0%%' and Sticker = '%s'", Ticker );
+		LoadStockCB ( &MySql, WhereClause, "Sticker", &xstock, (int(*)()) EachStock, 0 );
+	}
+	else if ( StockIndex == 'r' )
+	{
+		if ( StartTicker == EndTicker )
+		{
+			sprintf ( WhereClause, "Scik like '0%%' and Sticker like '%c%%'", StartTicker );
+		}
+		else
+		{
+			sprintf ( WhereClause, "Scik like '0%%' and Sticker >= '%c' and Sticker <= '%c'", StartTicker, EndTicker );
+		}
+		LoadStockCB ( &MySql, WhereClause, "Sticker", &xstock, (int(*)()) EachStock, 0 );
+	}
+	else if ( StockIndex == 'O' )
+	{
+		if ( StartTicker != '?' && EndTicker != '?' )
+		{
+			sprintf ( WhereClause, "Scik like '0%%' and Sticker >= '%c' and Sticker <= '%c'", StartTicker, EndTicker );
+		}
+		else
+		{
+			sprintf ( WhereClause, "Scik like '0%%'" );
+		}
+		LoadStockCB ( &MySql, WhereClause, "Sticker", &xstock, (int(*)()) EachStock, 0 );
+	}
+	else if ( StockIndex == 'A' )
+	{
+		/*----------------------------------------------------------
+			SetWhereClause would set "Slast is not NULL" IEX is dead
+		----------------------------------------------------------*/
+		sprintf ( WhereClause, "Scik like '0%%'" );
 		LoadStockCB ( &MySql, WhereClause, "Sticker", &xstock, (int(*)()) EachStock, 0 );
 	}
 	else
@@ -131,7 +172,9 @@ int main ( int argc, char *argv[] )
 
 			if ( Verbose )
 			{
-				printf ( "Not removiing %s\n", SQL_Script );
+				printf ( "Saving %s as %s.%ld\n", SQL_Script, SQL_Script, StartTime );
+				sprintf ( cmdline, "mv %s %s.%ld", SQL_Script, SQL_Script, StartTime );
+				system ( cmdline );
 			}
 			else
 			{

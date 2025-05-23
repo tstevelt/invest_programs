@@ -126,7 +126,7 @@ int EachStock ( XSTOCK *ptr )
 	/*---------------------------------------------------------------------------
 		FIX RIDICULOUS  ...
 	---------------------------------------------------------------------------*/
-	if (  xstock.xstype[0] != 'E' && xfundamental.xfyield > 0.01 && xfundamental.xfdividend <= 0.0 )
+	if (  xstock.xstype[0] != STYPE_ETF && xfundamental.xfyield > 0.01 && xfundamental.xfdividend <= 0.0 )
 	{
 		xfundamental.xfdividend = 0.0;
 		xfundamental.xfyield    = 0.0;

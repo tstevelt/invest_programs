@@ -27,7 +27,7 @@ int EachStock ( XSTOCK *ptr )
 {
 	if ( xstock.xscik[0] != '0' )
 	{
-		if ( StockIndex == 'x' )
+		if ( StockIndex == 'x' || StockIndex == 'r' )
 		{
 			fprintf ( stderr, "%s does not have a CIK number\n", ptr->xsticker );
 		}
@@ -54,6 +54,15 @@ int EachStock ( XSTOCK *ptr )
 		if ( nsStrncmp ( xfundamental.xfframe, "CY", 2 ) != 0 )
 		{
 			strcpy ( xfundamental.xfframe, "CY197202" );
+		}
+
+		if ( StockIndex == 'O' )
+		{
+			sprintf ( WhereClause, " Fupdated > 0 and Fupdated < %ld", StartTime - SIX_DAYS );
+			if ( xfundamental.xfupdated == 0 || xfundamental.xfupdated >= StartTime - SIX_DAYS )
+			{
+				return ( 0 );
+			}
 		}
 	}
 	else
