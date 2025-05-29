@@ -7,6 +7,7 @@
 	Who		Date		Modification
 	---------------------------------------------------------------------
 	tms		06/10/2024	Added -owned option
+	tms		05/29/2025	Changed WhereClause from -all and -owned
 
 ----------------------------------------------------------------------------*/
 //     Programs called by invest.cgi
@@ -75,18 +76,24 @@ int main ( int argc, char *argv[] )
 	}
 	else if ( StockIndex == 'P' )
 	{
+/*---------------------------------------------------------------------------
 		sprintf ( WhereClause, 
 			"Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c'",
 						STYPE_BOND, STYPE_ETF, STYPE_CRYPTO, STYPE_INDEX, STYPE_FX, STYPE_OTHER);
+---------------------------------------------------------------------------*/
+		sprintf ( WhereClause, "Scik like '0%%'" );
 		strcat ( WhereClause, " and (select count(*) from  portfolio where Pticker = Sticker) > 0" );
 // printf ( "select Sticker from stock where %s\n", WhereClause );
 		LoadStockCB ( &MySql, WhereClause, "Sticker", &xstock, (int(*)()) EachStock, 0 );
 	}
 	else
 	{
+/*---------------------------------------------------------------------------
 		sprintf ( WhereClause, 
 			"Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c' and Stype != '%c'",
 						STYPE_BOND, STYPE_ETF, STYPE_CRYPTO, STYPE_INDEX, STYPE_FX, STYPE_OTHER);
+---------------------------------------------------------------------------*/
+		sprintf ( WhereClause, "Scik like '0%%'" );
 		LoadStockCB ( &MySql, WhereClause, "Sticker", &xstock, (int(*)()) EachStock, 0 );
 	}
 
